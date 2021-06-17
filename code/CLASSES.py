@@ -428,7 +428,126 @@ class Automate():
 
             return FinalAutomate
                 
+def Thompson(expressions):
+    SYMBOLES=[]
+    EtatFinalInitial=[]
+    SPECIAL=['(',')','+','*']
+    ListeSousAutomate=[]
+    sousEtatsFinalInitial=[]
+    SousEtats=[]
+    sous=[expressions[0]]
+    numeroEtat=0
+    newInit=None
+    newFinal=None
+    GLOBAL=None
+    FINALAUTOMATE=None
+    FINALPRECEDENTE=None
+    INITIALPRECEDENTE=None
+    i=1
+    while i<len(expressions):
+        if expressions[i] == '(':
+            ListeSousAutomate.append(sous)
+            sous=[]
+        sous.append(expressions[i])    
+        i+=1
+    ListeSousAutomate.append(sous)
+    SousCompteur=-1
+    print(ListeSousAutomate)
+    i=0
+    for sousAUtomate in ListeSousAutomate:
+        j=0
+        for symbole in sousAUtomate:
+            if symbole not in SPECIAL:
+                etat1=Etat(numeroEtat,[Transition(symbole,[numeroEtat+1])],True,False)
+                etat2=Etat(numeroEtat+1,[],False,True)
+                SousEtats.append(etat1)
+                SousEtats.append(etat2)
+                if sousAUtomate[j-1] =='(':
+                    GLOBAL=numeroEtat   
+                numeroEtat+=2
+                if  not sousEtatsFinalInitial:
+                    sousEtatsFinalInitial=[etat1,etat2]
+                else:
+                    if sousAUtomate[j-1] == '+':
+                        oldEtatInit=sousEtatsFinalInitial[0]
+                        oldEtatFinal=sousEtatsFinalInitial[1]
+                        newInit=Etat(numeroEtat,[Transition('eps',[numeroEtat-2]),Transition('eps',[numeroEtat-4])],True,False)
+                        newFinal=Etat(numeroEtat+1,[],False,True)
+                        SousEtats.append(newInit)
+                        SousEtats.append(newFinal)
+                        oldEtatInit.IsInitial=False
+                        oldEtatFinal.IsFinale=False
+                        oldEtatFinal.Transition=[Transition('eps',[numeroEtat+1])]
+                        etat1.IsInitial=False
+                        etat2.IsFinale=False
+                        etat2.Transition=[Transition('eps',[numeroEtat+1])]
+                        sousEtatsFinalInitial[0]=newInit
+                        sousEtatsFinalInitial[1]=newFinal
+                        numeroEtat+=2
+                    elif (sousAUtomate[j-1] not in SPECIAL) or (sousAUtomate[j-1] == '*') or (sousAUtomate[j-1] == ')'):
+                        oldEtatFinal=sousEtatsFinalInitial[1]
+                        oldEtatFinal.Transition=[Transition('eps',[numeroEtat-2])]
+                        etat1.IsInitial=False  
+                        oldEtatFinal.IsFinale=False
+                        sousEtatsFinalInitial[1]=etat2
 
+            elif symbole == '*':
+                newInit=Etat(numeroEtat,[Transition('eps',[numeroEtat+1])],True,False)
+                newFinal=Etat(numeroEtat+1,[],False,True)
+                oldEtatInit=sousEtatsFinalInitial[0]
+                oldEtatInit.IsInitial=False
+                newInit.Transition.append(Transition('eps',[oldEtatInit.NumEtat]))
+                oldEtatFinal=sousEtatsFinalInitial[1]
+                oldEtatFinal.Transition=[Transition('eps',[numeroEtat+1])]
+                oldEtatFinal.IsFinale=False
+                SousEtats.append(newInit)
+                SousEtats.append(newFinal)
+                sousEtatsFinalInitial[0]=newInit
+                sousEtatsFinalInitial[1]=newFinal
+                numeroEtat+=2            
+            i+=1 
+            j+=1
+        if not FINALAUTOMATE:
+            FINALAUTOMATE=Automate(len(SousEtats),[sousEtatsFinalInitial[0]],SousEtats)
+        else:       
+            sousListe=ListeSousAutomate[SousCompteur]
+            dernierSymbole=sousListe[len(sousListe)-1]
+            if dernierSymbole == '+':
+                for etat in SousEtats:
+                    FINALAUTOMATE.ListeEtats.append(etat) 
+                numero1=sousEtatsFinalInitial[0].NumEtat
+                numero2=FINALAUTOMATE.EtatsInitiaux[0].NumEtat
+                newInit=Etat(numeroEtat,[Transition('eps',[numero1]),Transition('eps',[numero2])],True,False)
+                newFinal=Etat(numeroEtat+1,[],False,True)
+                FINALAUTOMATE.ListeEtats.append(newInit)
+                FINALAUTOMATE.ListeEtats.append(newFinal)
+                INITIALPRECEDENTE.IsInitial=False
+                for etat in FINALAUTOMATE.ListeEtats:
+                    if etat.IsFinale and etat.NumEtat != numeroEtat+1:
+                        print(etat.NumEtat)
+                        etat.Transition=[Transition('eps',[numeroEtat+1])]
+                        etat.IsFinale=False
+                sousEtatsFinalInitial[0].IsInitial=False
+                sousEtatsFinalInitial[0]=newInit
+                sousEtatsFinalInitial[1]=newFinal
+                numeroEtat+=2
+            else:
+                for etat in FINALAUTOMATE.ListeEtats:
+                    if etat.IsFinale :
+                        etat.Transition=[Transition('eps',[sousEtatsFinalInitial[0].NumEtat])]
+                        etat.IsFinale=False
+                        sousEtatsFinalInitial[0].IsInitial=False
+                for etat in SousEtats:
+                    FINALAUTOMATE.ListeEtats.append(etat)
+
+        SousEtats=[] 
+        INITIALPRECEDENTE=sousEtatsFinalInitial[0]
+        FINALPRECEDENTE =sousEtatsFinalInitial[1]
+        sousEtatsFinalInitial=[] 
+        SousCompteur+=1       
+
+                  
+    return FINALAUTOMATE
             
 def  createEtat(numero,transition):
     dejapresent=[]

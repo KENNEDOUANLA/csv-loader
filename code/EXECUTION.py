@@ -75,6 +75,7 @@ def main():
     print("11- Cloture_par_miroir")
     print("12- Cloture_par_etoile")
     print("13- Cloture_par_concatenation")
+    print("14- Thompson")
     print("") 
     choix=int(input("choix  ---->"))
     if choix==1:
@@ -125,7 +126,16 @@ def main():
     elif choix == 13:
         #printAutomate(automateTest2)
         printAutomate(automate.Cloture_par_concatenation(automateTest1))
-                
+    elif choix ==14:
+        expressions=input("entrez votre expression   : ")
+        i=0
+        liste=[]
+        while i<len(expressions):
+            liste.append(expressions[i])
+            i+=1
+        printAutomate(Thompson(liste))
+        
+                    
                 
             
             
