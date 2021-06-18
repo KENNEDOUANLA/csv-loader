@@ -15,16 +15,17 @@ def contructionAFD():
     return Automate(3,[ListeEtats[0]],ListeEtats)
 
 def test1():
-    Liste1=[Transition('a',[2, 3])]
-    Liste2=[Transition('a',[4])]
-    Liste3=[Transition('a',[3]),Transition('b',[4])]
-    Liste4=[Transition('b',[2])]
+    Liste1=[Transition('0',[1]),Transition('1',[2])]
+    Liste2=[Transition('0',[1]),Transition('1',[3])]
+    Liste3=[Transition('0',[1]),Transition('1',[2])]
+    Liste4=[Transition('0',[1]),Transition('1',[4])]
+    Liste5=[Transition('0',[1]),Transition('1',[2])]
 
     """ creation des etats"""
-    ListeEtats=[Etat(1,Liste1,True,False),Etat(2,Liste2),Etat(3,Liste3),Etat(4,Liste4,False,True)]
+    ListeEtats=[Etat(0,Liste1,True,False),Etat(1,Liste2),Etat(2,Liste3),Etat(3,Liste4),Etat(4,Liste5,False,True)]
     
     """creation automate"""  
-    return Automate(4,[ListeEtats[0]],ListeEtats)
+    return Automate(5,[ListeEtats[0]],ListeEtats)
 
 def test2():
     Liste1=[Transition('a',[1,3]),Transition('b',[1])]
@@ -40,7 +41,20 @@ def test2():
     """creation automate"""  
     return Automate(4,[ListeEtats[0]],ListeEtats)
 
-    
+def test3():
+    Liste0=[Transition('a',[1]),Transition('b',[3])]
+    Liste1=[Transition('a',[1]),Transition('b',[2])]
+    Liste2=[Transition('a',[2]),Transition('b',[5])]
+    Liste3=[Transition('a',[3]),Transition('b',[4])]
+    Liste4=[Transition('a',[4]),Transition('b',[5])]
+    Liste5=[Transition('a',[5]),Transition('b',[5])]
+
+    """ creation des etats"""
+    ListeEtats=[Etat(0,Liste0,True,False),Etat(1,Liste1),Etat(2,Liste2),Etat(3,Liste3),Etat(4,Liste4),Etat(5,Liste5,False,True)]
+
+    """creation automate"""  
+    return Automate(6,[ListeEtats[0]],ListeEtats)
+        
     
 def contructionAFN():
     """creation des transition"""
@@ -76,6 +90,7 @@ def main():
     print("12- Cloture_par_etoile")
     print("13- Cloture_par_concatenation")
     print("14- Thompson")
+    print("15- Minimisation")
     print("") 
     choix=int(input("choix  ---->"))
     if choix==1:
@@ -124,7 +139,6 @@ def main():
     elif choix == 12:
         printAutomate(automate.Cloture_par_etoile())
     elif choix == 13:
-        #printAutomate(automateTest2)
         printAutomate(automate.Cloture_par_concatenation(automateTest1))
     elif choix ==14:
         expressions=input("entrez votre expression   : ")
@@ -134,7 +148,11 @@ def main():
             liste.append(expressions[i])
             i+=1
         printAutomate(Thompson(liste))
-        
+    elif choix == 15:
+        automate=test3()
+        printAutomate(automate.Minimisation())
+
+            
                     
                 
             

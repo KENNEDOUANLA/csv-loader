@@ -427,7 +427,137 @@ class Automate():
                 FinalAutomate.ListeEtats.append(etat)
 
             return FinalAutomate
+    
+    def getAllNotFinal(self):
+        retour=[]
+        for etat in self.ListeEtats:
+            if not etat.IsFinale:
+                retour.append(etat)
+        return retour 
+    
+
+    def Minimisation(self):
+        Classe00=self.getAllFinal()
+        Classe01=self.getAllNotFinal()
+        ClasseEquivalence={1:Classe00,2:Classe01}
+        maxkey=2
+        terminer=False
+        Symbole=self.getAllSymbole()
+
+        while not terminer:
+            i=1 
+            entrer=False
+            while i<=maxkey: 
+                classeActuel=ClasseEquivalence[i]
+                if len(classeActuel)>1: 
+                    newListe=self.MemeDestination(classeActuel,ClasseEquivalence,Symbole,i)
+                    if type(newListe)==dict:
+                        entrer=True
+                        del ClasseEquivalence[i]
+                        dicAide=dict(ClasseEquivalence)
+                        cle=1
+                        ClasseEquivalence={}
+                        for key,valeur in dicAide.items():
+                            ClasseEquivalence[cle]=valeur
+                            cle+=1
+                        for key,valeur in newListe.items():
+                            ClasseEquivalence[cle]=valeur
+                            cle+=1
+
+                        maxkey=cle-1
+                        i=maxkey+1
+                            
+                i+=1    
+            if not entrer:
+                terminer=True
+        ListeEtatsNew=[]
+        NewInitial=[]
+
+        return self.constructionApresMinimiser(ClasseEquivalence)
+    
+
+    def MemeDestination(self,listeEtats,dictCouple,Symboles,i):
+        continuer=True
+        sousListes={}  
+        i=0
+        while i<len(Symboles) and continuer:
+            symbole=Symboles[i]
+            ListeKle=[]
+            for etat in listeEtats:
+                numeros=etat.getNextState(symbole)
+                nextState=self.ReturnEtat(numeros[0])
+    
+                for key in dictCouple:
+                    if nextState in dictCouple[key]:
+                        if key in ListeKle:
+                            sousListes[key].append(etat)
+                        else:
+                            ListeKle.append(key)
+                            sousListes[key]=[etat]
+                        break    
+            i+=1
+            if len(sousListes)>1:
+                continuer=False
+            else:
+                sousListes={}  
+                  
+        if continuer:
+            return listeEtats
+        else:
+            return sousListes    
+
+    def constructionApresMinimiser(self,ClasseEquivalence):
+        symboles=self.getAllSymbole()
+        ListeEtatsNew=[]
+        EtatInit=[]
+        for key,etats in ClasseEquivalence.items():
+            etat=etats[0]
+            TransitionFinaux=[]
+            for symbole in symboles:
+                numero=etat.getNextState(symbole)
+                if numero :
+                    nextState=self.ReturnEtat(numero[0])
+                    name=''
+                    for key2,etats2 in ClasseEquivalence.items():
+                        if nextState in etats2:
+                            if len(etats2) >1:
+                                newName=[]
+                                for state in etats2:
+                                    newName.append(state.NumEtat)
+                                sorted(newName)
+                                name=','.join(str(elem) for elem in newName)
+                                TransitionFinaux.append(Transition(symbole,[name]))
+                            else:
+                                TransitionFinaux.append(Transition(symbole,[str(numero[0])]))
+                            break
+            initial=False
+            final=False
+            newName=[]
+            name=''
+            if len(etats) > 1:
+                for state in etats:
+                    if state.IsInitial:
+                        initial=True
+                        EtatInit.append(state)
+                    if state.IsFinale:
+                        final=True 
+                    newName.append(state.NumEtat)
+                    sorted(newName)
+                name=','.join(str(elem) for elem in newName)
+            else:
+                name=str(etats[0].NumEtat)
+                if etat.IsInitial:
+                    initial=True
+                    EtatInit.append(etat)
+                if etat.IsFinale:
+                    pass
+                    final=True      
+            ListeEtatsNew.append(Etat(name,TransitionFinaux,initial,final))
                 
+            
+        return Automate(len(ClasseEquivalence),EtatInit,ListeEtatsNew)                    
+                        
+
 def Thompson(expressions):
     SYMBOLES=[]
     EtatFinalInitial=[]
