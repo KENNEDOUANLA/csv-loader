@@ -555,8 +555,26 @@ class Automate():
             ListeEtatsNew.append(Etat(name,TransitionFinaux,initial,final))
                 
             
-        return Automate(len(ClasseEquivalence),EtatInit,ListeEtatsNew)                    
-                        
+        return Automate(len(ClasseEquivalence),EtatInit,ListeEtatsNew)  
+
+
+    """def Renomage(self,initial):
+        i=0
+        dejatraiter=[initial.NumEtat]
+        while i<len(self.ListeEtats):
+
+
+            i+=1
+
+        for etat in self.ListeEtats:
+            etat.NumEtat=dictionnaire[etat.NumEtat]
+            for transitions in etat.Transition:
+                for numero in transition:
+                    numero=dictionnaire[numero]"""
+                    
+                
+                
+                                
 
 def Thompson(expressions):
     SYMBOLES=[]
@@ -573,6 +591,8 @@ def Thompson(expressions):
     FINALAUTOMATE=None
     FINALPRECEDENTE=None
     INITIALPRECEDENTE=None
+    dictionnaire={}
+    reelName=0
     i=1
     while i<len(expressions):
         if expressions[i] == '(':
@@ -601,7 +621,7 @@ def Thompson(expressions):
                     if sousAUtomate[j-1] == '+':
                         oldEtatInit=sousEtatsFinalInitial[0]
                         oldEtatFinal=sousEtatsFinalInitial[1]
-                        newInit=Etat(numeroEtat,[Transition('eps',[numeroEtat-2]),Transition('eps',[numeroEtat-4])],True,False)
+                        newInit=Etat(numeroEtat,[Transition('eps',[oldEtatInit.NumEtat,numeroEtat-2])],True,False)
                         newFinal=Etat(numeroEtat+1,[],False,True)
                         SousEtats.append(newInit)
                         SousEtats.append(newFinal)
@@ -622,14 +642,15 @@ def Thompson(expressions):
                         sousEtatsFinalInitial[1]=etat2
 
             elif symbole == '*':
-                newInit=Etat(numeroEtat,[Transition('eps',[numeroEtat+1])],True,False)
-                newFinal=Etat(numeroEtat+1,[],False,True)
                 oldEtatInit=sousEtatsFinalInitial[0]
+                newInit=Etat(numeroEtat,[Transition('eps',[numeroEtat+1,oldEtatInit.NumEtat])],True,False)
+                newFinal=Etat(numeroEtat+1,[],False,True)
                 oldEtatInit.IsInitial=False
-                newInit.Transition.append(Transition('eps',[oldEtatInit.NumEtat]))
+                #newInit.Transition.append(Transition('eps',[oldEtatInit.NumEtat]))
                 oldEtatFinal=sousEtatsFinalInitial[1]
-                oldEtatFinal.Transition=[Transition('eps',[numeroEtat+1])]
+                oldEtatFinal.Transition=[Transition('eps',[numeroEtat+1,oldEtatInit.NumEtat])]
                 oldEtatFinal.IsFinale=False
+
                 SousEtats.append(newInit)
                 SousEtats.append(newFinal)
                 sousEtatsFinalInitial[0]=newInit
@@ -647,7 +668,7 @@ def Thompson(expressions):
                     FINALAUTOMATE.ListeEtats.append(etat) 
                 numero1=sousEtatsFinalInitial[0].NumEtat
                 numero2=FINALAUTOMATE.EtatsInitiaux[0].NumEtat
-                newInit=Etat(numeroEtat,[Transition('eps',[numero1]),Transition('eps',[numero2])],True,False)
+                newInit=Etat(numeroEtat,[Transition('eps',[numero1,numero2])],True,False)
                 newFinal=Etat(numeroEtat+1,[],False,True)
                 FINALAUTOMATE.ListeEtats.append(newInit)
                 FINALAUTOMATE.ListeEtats.append(newFinal)
@@ -674,11 +695,15 @@ def Thompson(expressions):
         INITIALPRECEDENTE=sousEtatsFinalInitial[0]
         FINALPRECEDENTE =sousEtatsFinalInitial[1]
         sousEtatsFinalInitial=[] 
-        SousCompteur+=1       
+        SousCompteur+=1  
+
+    #FINALAUTOMATE.Renomage(dictionnaire)         
 
                   
     return FINALAUTOMATE
-            
+
+
+                
 def  createEtat(numero,transition):
     dejapresent=[]
     ListeTransition=[]

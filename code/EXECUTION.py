@@ -114,7 +114,6 @@ def main():
         else:
             print("l'etat {} etat n'exite pas".format(numero)) 
     elif choix == 4:
-
         for etat in automate2.ListeEtats:
             print("eps-fermeture({}) = {}".format(etat.NumEtat ,automate2.eps_Fermeture(etat)))
     elif choix == 5 :
@@ -148,6 +147,10 @@ def main():
             liste.append(expressions[i])
             i+=1
         printAutomate(Thompson(liste))
+        #automate=Thompson(liste)  
+        #automate=automate.Construction_des_sous_ensembles() 
+        #printAutomate(automate.Determinisation())
+
     elif choix == 15:
         automate=test3()
         printAutomate(automate.Minimisation())
